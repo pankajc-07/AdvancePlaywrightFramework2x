@@ -1,88 +1,238 @@
 # Advance Playwright Framework 2x
 
-A robust, scalable Playwright test automation framework with TypeScript support.
+A robust, scalable, and production-ready Playwright test automation framework with TypeScript, designed for end-to-end, API, and data-driven testing.
 
 ## 📁 Project Structure
 
 ```
-AdvancePlaywrightFramework2x
+AdvancePlaywrightFramework2x/
 ├── src/
-│   ├── api/          → API clients
-│   ├── config/       → Environment configuration
-│   ├── fixtures/     → Custom Playwright fixtures
-│   ├── pages/        → Page Object Model
-│   ├── testdata/     → Test data
-│   ├── tests/        → Test cases
-│   └── utils/        → Reusable utilities
-├── docs/             → Documentation
-├── rules/            → Rules
-├── .github/          → GitHub workflows
-├── .env              → Environment variables
-├── package.json
-├── playwright.config.ts
-└── tsconfig.json
+│   ├── api/              → API client modules (REST/GraphQL)
+│   ├── config/           → Centralized environment configuration
+│   ├── fixtures/         → Custom Playwright fixtures (auth, DB, API)
+│   ├── pages/            → Page Object Model (POM) classes
+│   ├── testdata/         → Static test data, CSV/Excel, Faker factories
+│   ├── tests/            → Test specifications (*.spec.ts)
+│   └── utils/            → Reusable utilities (logger, validators, parsers)
+├── docs/                 → Project documentation & architecture decisions
+├── rules/                → Linting rules & coding standards
+├── .github/              → GitHub Actions CI/CD workflows
+├── .env                  → Environment variables
+├── package.json          → Dependencies & scripts
+├── playwright.config.ts  → Playwright configuration (multi-env)
+└── tsconfig.json         → TypeScript compiler options
 ```
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
-- npm
+| Tool | Version |
+|------|---------|
+| Node.js | v18 or higher |
+| npm | Latest LTS |
 
 ### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/pankajc-07/AdvancePlaywrightFramework2x.git
+cd AdvancePlaywrightFramework2x
+
+# Install dependencies
 npm install
+
+# Install Playwright browsers
 npx playwright install
 ```
 
-### Running Tests
+### Environment Setup
+
+Create or update the `.env` file in the project root:
+
+```env
+TTA_ENV=qa
+
+# Base URLs per environment
+QA_BASE_URL=https://app.thetestingacademy.com
+STG_BASE_URL=https://stage.thetestingacademy.com
+PROD_BASE_URL=https://app.thetestingacademy.com
+DEV_BASE_URL=http://localhost:3000
+API_BASE_URL=https://restful-booker.herokuapp.com
+```
+
+---
+
+## ▶️ Running Tests
 
 ```bash
 # Run all tests
 npx playwright test
 
-# Run tests in headed mode
+# Run tests in headed (visible) mode
 npx playwright test --headed
 
 # Run a specific test file
 npx playwright test src/tests/example.spec.ts
 
+# Run tests for a specific project (browser)
+npx playwright test --project=chromium
+
 # Run tests with a specific environment
-TTA_ENV=qa npx playwright test
+TTA_ENV=staging npx playwright test
+
+# Run tests in debug mode
+npx playwright test --debug
 ```
 
 ### Environment Configuration
 
 Set the `TTA_ENV` environment variable to target different environments:
 
-| Value | Environment |
-|-------|-------------|
-| `qa` | QA (default) |
-| `stg` / `stage` / `staging` | Staging |
-| `prod` / `production` | Production |
-| `dev` / `local` | Development |
-| `api` | API Testing |
+| Value | Environment | Default Base URL |
+|-------|-------------|-----------------|
+| `qa` | QA (default) | `https://app.thetestingacademy.com` |
+| `stg` / `stage` / `staging` | Staging | `https://stage.thetestingacademy.com` |
+| `prod` / `production` | Production | `https://app.thetestingacademy.com` |
+| `dev` / `local` | Development | `http://localhost:3000` |
+| `api` | API Testing | `https://restful-booker.herokuapp.com` |
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Playwright** — End-to-end testing
-- **TypeScript** — Type-safe test development
-- **dotenv** — Environment variable management
-- **Allure** — Test reporting
-- **AJV** — JSON schema validation
-- **Winston** — Logging
-- **Faker.js** — Test data generation
-- **xlsx / csv-parse** — Data-driven testing
+### Core
+
+| Package | Purpose |
+|---------|---------|
+| [Playwright](https://playwright.dev) | End-to-end browser & API testing |
+| [TypeScript](https://www.typescriptlang.org) | Type-safe test development |
+
+### Utilities
+
+| Package | Purpose |
+|---------|---------|
+| [dotenv](https://github.com/motdotla/dotenv) | Environment variable management |
+| [Winston](https://github.com/winstonjs/winston) | Structured logging |
+| [Faker.js](https://fakerjs.dev) | Realistic test data generation |
+| [AJV](https://ajv.js.org) | JSON schema validation |
+| [ajv-formats](https://github.com/ajv-validator/ajv-formats) | Extended format validation for AJV |
+| [jsonpath-plus](https://github.com/JSONPath-Plus/JSONPath) | JSON path query expressions |
+
+### Data-Driven Testing
+
+| Package | Purpose |
+|---------|---------|
+| [xlsx](https://sheetjs.com) | Read/write Excel (.xlsx) test data |
+| [csv-parse](https://csv.js.org/parse) | Parse CSV test data files |
+
+### Reporting
+
+| Package | Purpose |
+|---------|---------|
+| [Allure Playwright](https://github.com/allure-framework/allure-js) | Rich HTML test reports with history & trends |
+
+---
+
+## 🧩 Framework Features
+
+### Multi-Environment Support
+Centralized configuration via `TTA_ENV` environment variable. Add new environments by extending the switch in `playwright.config.ts`.
+
+### Page Object Model (POM)
+Organise page interactions into reusable classes under `src/pages/`. Each class encapsulates locators, actions, and verifications for a single page or component.
+
+### Custom Fixtures
+Extend Playwright's built-in fixtures with custom ones in `src/fixtures/` for:
+- Authenticated browser contexts
+- API request contexts with auth tokens
+- Shared test data setup/teardown
+- Database connections (future)
+
+### API Testing
+Dedicated API clients under `src/api/` with built-in support for:
+- JSON schema validation via AJV
+- JSON path querying via jsonpath-plus
+- Request/response logging via Winston
+
+### Data-Driven Testing
+Drive tests from external data sources:
+- CSV files (via `csv-parse`)
+- Excel spreadsheets (via `xlsx`)
+- Programmatic data generation (via `@faker-js/faker`)
+
+### Logging
+Centralized Winston logger under `src/utils/` with configurable log levels, formats, and transports.
+
+---
 
 ## 📊 Reports
 
 ```bash
-# Generate Allure report
+# Run tests with Allure reporting
+npx playwright test --reporter=allure-playwright
+
+# Generate and open Allure report
 npx allure generate ./allure-results --clean
 npx allure open
+
+# View built-in HTML report
+npx playwright show-report
 ```
+
+---
+
+## ⚙️ Playwright Configuration
+
+| Setting | Value |
+|---------|-------|
+| Test Directory | `./src/tests` |
+| Test Timeout | 60 seconds |
+| Expect Timeout | 10 seconds |
+| Parallelism | Fully parallel |
+| Retries (CI) | 2 |
+| Retries (local) | 0 |
+| Browsers | Chromium (Desktop Chrome) |
+| Screenshot | On failure |
+| Video | Always on |
+| Trace | On first retry |
+
+---
+
+## 🔧 CI/CD Integration
+
+This framework is ready for GitHub Actions. Add a `.github/workflows/playwright.yml` file to run tests on push/PR.
+
+Example workflow:
+
+```yaml
+name: Playwright Tests
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+```
+
+---
 
 ## 📝 License
 
