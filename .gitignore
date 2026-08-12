@@ -4,6 +4,9 @@ node_modules/
 .env
 /test-results/
 /playwright-report/
+/tta-report/
+/reports/
+/logs
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
