@@ -170,6 +170,35 @@ Centralized Winston logger under `src/utils/` with configurable log levels, form
 
 ## 📊 Reports
 
+### Playwright Built-in Report
+
+```bash
+# View built-in HTML report
+npx playwright show-report
+```
+
+### Custom TTA Reporter (`src/utils/CustomReporter.ts`)
+
+A **real-time HTML report** is generated automatically on every test run at `tta-report/report_<timestamp>.html`. Features:
+
+- **Live Refresh** — report updates every 5 seconds while tests are running
+- **Test Step Details** — expand rows to see per-step duration, console logs, screenshots, and stack traces
+- **Video & Trace Links** — embedded video player and downloadable Playwright traces
+- **Filtering** — filter by priority (`@p0`, `@p1`, `@smoke`) or status (passed/failed/skipped)
+- **AI Verdict Tab** — RCA (Root Cause Analysis) for failed tests via LLM agent
+- **Flaky Analyzer Tab** — compares current build vs previous build to detect flaky tests
+- **History Page** — browse all past reports at `tta-report/history.html`
+
+```bash
+# Reports are generated automatically — just run tests
+npx playwright test
+
+# Open the latest report
+# Open tta-report/index.html (redirects to latest) or any timestamped report
+```
+
+### Allure Report
+
 ```bash
 # Run tests with Allure reporting
 npx playwright test --reporter=allure-playwright
@@ -177,9 +206,6 @@ npx playwright test --reporter=allure-playwright
 # Generate and open Allure report
 npx allure generate ./allure-results --clean
 npx allure open
-
-# View built-in HTML report
-npx playwright show-report
 ```
 
 ---
