@@ -7,6 +7,7 @@ A robust, scalable, and production-ready Playwright test automation framework wi
 ```
 AdvancePlaywrightFramework2x/
 ├── src/
+│   ├── ai/               → AI agents (RCA, flaky analyzer, LLM config)
 │   ├── api/              → API client modules (REST/GraphQL)
 │   ├── config/           → Centralized environment configuration
 │   ├── fixtures/         → Custom Playwright fixtures (auth, DB, API)
@@ -18,6 +19,7 @@ AdvancePlaywrightFramework2x/
 ├── rules/                → Linting rules & coding standards
 ├── .github/              → GitHub Actions CI/CD workflows
 ├── .env                  → Environment variables
+├── AGENTS.md             → AI coding agent conventions & pitfalls
 ├── package.json          → Dependencies & scripts
 ├── playwright.config.ts  → Playwright configuration (multi-env)
 └── tsconfig.json         → TypeScript compiler options
@@ -221,9 +223,32 @@ npx allure open
 | Retries (CI) | 2 |
 | Retries (local) | 0 |
 | Browsers | Chromium (Desktop Chrome) |
+| Reporter | HTML + List + Custom TTA Reporter |
 | Screenshot | On failure |
 | Video | Always on |
-| Trace | On first retry |
+| Trace | Always on |
+
+### TypeScript Path Aliases
+
+Import utilities, pages, and fixtures using `@` aliases instead of relative paths:
+
+| Alias | Maps to |
+|-------|---------|
+| `@pages/*` | `src/pages/*` |
+| `@utils/*` | `src/utils/*` |
+| `@api/*` | `src/api/*` |
+| `@config/*` | `src/config/*` |
+| `@fixtures/*` | `src/fixtures/*` |
+| `@testdata/*` | `src/testdata/*` |
+
+```typescript
+// ✅ With aliases
+import { LoginPage } from '@pages/LoginPage';
+import { createLogger } from '@utils/logger';
+
+// ❌ Without aliases (works but verbose)
+import { LoginPage } from '../pages/LoginPage';
+```
 
 ---
 
