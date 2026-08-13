@@ -27,12 +27,5 @@ test.describe('TTACart - Login', () => {
             log.info('Asserting login form is hidden after login');
             await expect(page.locator('[data-test="login-button"]')).toBeHidden();
         });
-
-
-
     });
-
-
-
-
 });

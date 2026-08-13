@@ -170,7 +170,20 @@ Centralized Winston logger under `src/utils/` with configurable log levels, form
 
 ---
 
-## 📊 Reports
+## � Documentation
+
+Detailed framework documentation is available in the [`docs/`](docs/) folder:
+
+| Document | Description |
+|----------|-------------|
+| [`docs/project-structure.md`](docs/project-structure.md) | Folder structure, execution flow diagram, component summaries, and known gaps |
+| [`docs/deep-dive.md`](docs/deep-dive.md) | Line-by-line deep-dive of every source file — BasePage, UtilElementLocator, CustomReporter, AI agents, DataGenerator, logger, playwright config, and more |
+
+Also see [`AGENTS.md`](AGENTS.md) for AI coding agent conventions and critical pitfalls for this project.
+
+---
+
+## �📊 Reports
 
 ### Playwright Built-in Report
 
