@@ -77,7 +77,10 @@ npx playwright test
 npx playwright test --headed
 
 # Run a specific test file
-npx playwright test src/tests/example.spec.ts
+npx playwright test src/tests/login/login.spec.ts
+
+# Run E2E checkout tests
+npx playwright test src/tests/e2e/
 
 # Run tests for a specific project (browser)
 npx playwright test --project=chromium
@@ -148,10 +151,36 @@ Organise page interactions into reusable classes under `src/pages/`. Each class 
 
 ### Custom Fixtures
 Extend Playwright's built-in fixtures with custom ones in `src/fixtures/` for:
+- **Page Object Fixtures** — Pre-constructed page objects (`loginPage`, `inventoryPage`, `cartPage`, etc.) injected directly into tests — no manual `new` required
+- **State Fixtures** — Reusable application states that set up only when a test requests them:
+  - `invalidLogin` — locked-out user state (negative path)
+  - `validLogin` — authenticated standard user
+  - `loginWithInventory` — logged in + inventory page loaded
+  - `loginWithSelectedItem` — logged in + one item already in cart
 - Authenticated browser contexts
 - API request contexts with auth tokens
 - Shared test data setup/teardown
 - Database connections (future)
+
+**Usage:**
+```typescript
+import { test, expect } from '@fixtures/test-base';
+
+test('complete checkout', async ({
+    loginWithSelectedItem,  // auto-login + item in cart
+    cartPage,
+    checkoutStepOnePage,
+    checkoutStepTwoPage,
+    checkoutCompletePage,
+}) => {
+    await cartPage.open();
+    await cartPage.checkout();
+    await checkoutStepOnePage.fillGuest({ firstName: 'John', lastName: 'Doe', postalCode: '90210' });
+    await checkoutStepOnePage.continue();
+    await checkoutStepTwoPage.finish();
+    await checkoutCompletePage.assertOrderComplete();
+});
+```
 
 ### API Testing
 Dedicated API clients under `src/api/` with built-in support for:
@@ -161,9 +190,16 @@ Dedicated API clients under `src/api/` with built-in support for:
 
 ### Data-Driven Testing
 Drive tests from external data sources:
+- JSON test data files (e.g., `src/testdata/logintestdata.json`)
 - CSV files (via `csv-parse`)
 - Excel spreadsheets (via `xlsx`)
 - Programmatic data generation (via `@faker-js/faker`)
+
+### Visual Step Logging
+The `visualStep` utility (`src/utils/visualStep.ts`) wraps Playwright's `test.step()` with automatic screenshot capture, providing visual traceability for every logical step in your tests.
+
+### Centralized Credentials
+Environment-aware credentials in `src/config/credentials.ts` — defaults to `standard_user` / `tta_secret` with environment variable overrides (`STANDARD_USER`, `TTA_SECRET`).
 
 ### Logging
 Centralized Winston logger under `src/utils/` with configurable log levels, formats, and transports.
