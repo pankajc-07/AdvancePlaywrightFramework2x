@@ -82,6 +82,9 @@ npx playwright test src/tests/login/login.spec.ts
 # Run E2E checkout tests
 npx playwright test src/tests/e2e/
 
+# Run E2E checkout with fixture-driven approach
+npx playwright test src/tests/e2e/e2e-checkout_new_fixture.spec.ts --headed
+
 # Run tests for a specific project (browser)
 npx playwright test --project=chromium
 

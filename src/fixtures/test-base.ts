@@ -31,6 +31,7 @@ import { CheckoutStepTwoPage } from '@pages/CheckoutStepTwoPage';
 import { CheckoutCompletePage } from '@pages/CheckoutCompletePage';
 import loginTestData from '@testdata/logintestdata.json';
 
+//This is additional code for Valid and Invalid user start here
 type LoginRecord = {
     username: string;
     password: string;
@@ -54,6 +55,7 @@ const SELECTED_ITEM_ID = 'test-allthethings-tshirt-red';
 if (!validUser || !invalidUser) {
     throw new Error('Required standard_user and locked_out_user test data is missing');
 }
+//Aditional code for Valid and Invalid user ends here
 
 export type TestFixture = {
 
@@ -66,7 +68,7 @@ export type TestFixture = {
     checkoutStepTwoPage: CheckoutStepTwoPage;
     checkoutCompletePage: CheckoutCompletePage;
 
-    // Ready-to-use application states
+    // Ready-to-use application states => Aditional code for Valid and Invalid user
     invalidLogin: InvalidLoginState;
     validLogin: LoginPage;
     loginWithInventory: InventoryPage;
@@ -98,6 +100,7 @@ export const test = base.extend<TestFixture>({
     },
 
     // Independent negative state: the locked-out account remains on login.
+    // Aditional code for Valid and Invalid user
     invalidLogin: async ({ page, loginPage }, use) => {
         await loginPage.open();
         await loginPage.loginAs(invalidUser.username, invalidUser.password);
@@ -106,6 +109,7 @@ export const test = base.extend<TestFixture>({
     },
 
     // Successful authentication state.
+    // Aditional code for Valid and Invalid user
     validLogin: async ({ loginPage }, use) => {
         await loginPage.open();
         await loginPage.loginAs(validUser.username, validUser.password);
@@ -114,6 +118,7 @@ export const test = base.extend<TestFixture>({
     },
 
     // Depends on validLogin and guarantees that inventory is loaded.
+    // Aditional code for Valid and Invalid user
     loginWithInventory: async ({ validLogin, inventoryPage }, use) => {
         void validLogin;
         await inventoryPage.assertLoaded();
@@ -121,6 +126,7 @@ export const test = base.extend<TestFixture>({
     },
 
     // Depends on inventory and guarantees that one item is in the cart.
+    // Aditional code for Valid and Invalid user
     loginWithSelectedItem: async ({ loginWithInventory }, use) => {
         await loginWithInventory.addToCart(SELECTED_ITEM_ID);
         await use({

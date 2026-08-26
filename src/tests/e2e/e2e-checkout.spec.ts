@@ -10,6 +10,7 @@
 
 import { test, expect } from '@fixtures/test-base';
 import { DataGenerator } from '@utils/DataGenerator';
+// named Import uses {} and default import does not 
 import { credentials } from '@config/credentials';
 import { createLogger } from '@utils/logger';
 import { visualStep } from '@utils/visualStep';
@@ -76,10 +77,4 @@ test.describe('@P0 @Regression E2E @Checkout Checkout Feature', () => {
             await checkoutCompletePage.assertOrderComplete();
         });
     });
-
-
-
-
-
-
 });
