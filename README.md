@@ -16,6 +16,7 @@ AdvancePlaywrightFramework2x/
 │   ├── tests/            → Test specifications (*.spec.ts)
 │   └── utils/            → Reusable utilities (logger, validators, parsers)
 ├── docs/                 → Project documentation & architecture decisions
+├── KB/                   → Knowledge Base articles (step-by-step file explainers)
 ├── rules/                → Linting rules & coding standards
 ├── .github/              → GitHub Actions CI/CD workflows
 ├── .env                  → Environment variables
@@ -217,7 +218,14 @@ Detailed framework documentation is available in the [`docs/`](docs/) folder:
 |----------|-------------|
 | [`docs/project-structure.md`](docs/project-structure.md) | Folder structure, execution flow diagram, component summaries, and known gaps |
 | [`docs/deep-dive.md`](docs/deep-dive.md) | Line-by-line deep-dive of every source file — BasePage, UtilElementLocator, CustomReporter, AI agents, DataGenerator, logger, playwright config, and more |
+### 📖 Knowledge Base (KB)
 
+Step-by-step explainers for key framework files — ideal for onboarding and presentations:
+
+| Article | Covers |
+|---------|--------|
+| [`KB/KB-test-base-fixtures-explained.md`](KB/KB-test-base-fixtures-explained.md) | `src/fixtures/test-base.ts` — custom fixture definitions, dependency chain, page-object & state fixtures, `base.extend()` explained |
+| [`KB/KB-e2e-checkout-spec-explained.md`](KB/KB-e2e-checkout-spec-explained.md) | `src/tests/e2e/e2e-checkout.spec.ts` — full checkout flow walkthrough, `visualStep` usage, `DataGenerator`, assertions, logging |
 Also see [`AGENTS.md`](AGENTS.md) for AI coding agent conventions and critical pitfalls for this project.
 
 ---
