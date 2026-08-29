@@ -18,8 +18,9 @@ AdvancePlaywrightFramework2x/
 ├── docs/                 → Project documentation & architecture decisions
 ├── KB/                   → Knowledge Base articles (step-by-step file explainers)
 ├── rules/                → Linting rules & coding standards
-├── .github/              → GitHub Actions CI/CD workflows
-├── .env                  → Environment variables
+├── .github/              → GitHub Actions CI/CD workflows & Copilot instructions
+├── .env.example          → Environment variable template (committed)
+├── .env                  → Environment variables (gitignored)
 ├── AGENTS.md             → AI coding agent conventions & pitfalls
 ├── package.json          → Dependencies & scripts
 ├── playwright.config.ts  → Playwright configuration (multi-env)
@@ -53,7 +54,13 @@ npx playwright install
 
 ### Environment Setup
 
-Create or update the `.env` file in the project root:
+Copy the example environment file and customize it:
+
+```bash
+cp .env.example .env
+```
+
+The `.env.example` file is committed to the repo and serves as a template. The actual `.env` is gitignored.
 
 ```env
 TTA_ENV=qa
@@ -64,6 +71,16 @@ STG_BASE_URL=https://stage.thetestingacademy.com
 PROD_BASE_URL=https://app.thetestingacademy.com
 DEV_BASE_URL=http://localhost:3000
 API_BASE_URL=https://restful-booker.herokuapp.com
+
+# Credentials (override defaults)
+STANDARD_USER=standard_user
+TTA_SECRET=tta_secret
+
+# E2E checkout env-driven test
+CHECKOUT_ITEM_ID=test-allthethings-tshirt-red
+CHECKOUT_FIRST_NAME=Pramod
+CHECKOUT_LAST_NAME=Dutta
+CHECKOUT_POSTAL_CODE=560001
 ```
 
 ---
@@ -205,6 +222,31 @@ The `visualStep` utility (`src/utils/visualStep.ts`) wraps Playwright's `test.st
 ### Centralized Credentials
 Environment-aware credentials in `src/config/credentials.ts` — defaults to `standard_user` / `tta_secret` with environment variable overrides (`STANDARD_USER`, `TTA_SECRET`).
 
+### Environment Config Module (`@config/env`)
+The `src/config/env.ts` module provides a safe, centralized way to read environment variables. Importing it automatically loads `.env` via dotenv — no manual `dotenv.config()` needed.
+
+| Export | Purpose |
+|--------|---------|
+| `requireEnv(key)` | Returns the value; throws if unset or blank |
+| `envOr(key, fallback)` | Returns the value or a fallback default |
+| `assertEnv(...keys)` | Validates multiple keys exist; reports all missing at once |
+
+```typescript
+import { requireEnv, envOr, assertEnv } from '@config/env';
+
+// Required — throws at collection time if missing
+const ITEM_ID = requireEnv('CHECKOUT_ITEM_ID');
+
+// Optional with fallback
+const logLevel = envOr('LOG_LEVEL', 'info');
+
+// Batch validation
+assertEnv('STANDARD_USER', 'TTA_SECRET');
+```
+
+### Env-Driven E2E Checkout Test
+`src/tests/e2e/e2e-checkout-env.spec.ts` is a checkout test driven entirely by `.env` variables. It reads credentials, item ID, and customer details from the environment, falling back to Faker for optional fields. This makes it easy to run the same flow with different data across environments without touching test code.
+
 ### Logging
 Centralized Winston logger under `src/utils/` with configurable log levels, formats, and transports.
 
@@ -226,6 +268,8 @@ Step-by-step explainers for key framework files — ideal for onboarding and pre
 |---------|--------|
 | [`KB/KB-test-base-fixtures-explained.md`](KB/KB-test-base-fixtures-explained.md) | `src/fixtures/test-base.ts` — custom fixture definitions, dependency chain, page-object & state fixtures, `base.extend()` explained |
 | [`KB/KB-e2e-checkout-spec-explained.md`](KB/KB-e2e-checkout-spec-explained.md) | `src/tests/e2e/e2e-checkout.spec.ts` — full checkout flow walkthrough, `visualStep` usage, `DataGenerator`, assertions, logging |
+| [`KB/2026-08-12-custom-reporter-wiring.md`](KB/2026-08-12-custom-reporter-wiring.md) | CustomReporter wiring — how the TTA reporter hooks into Playwright's reporter API |
+| [`KB/2026-08-28-dotenv-in-playwright-specs.md`](KB/2026-08-28-dotenv-in-playwright-specs.md) | dotenv in Playwright specs — why `dotenv.config()` in a spec fails due to Babel hoisting, and how `@config/env` solves it |
 Also see [`AGENTS.md`](AGENTS.md) for AI coding agent conventions and critical pitfalls for this project.
 
 ---
@@ -314,9 +358,12 @@ import { LoginPage } from '../pages/LoginPage';
 
 ## 🔧 CI/CD Integration
 
-This framework is ready for GitHub Actions. Add a `.github/workflows/playwright.yml` file to run tests on push/PR.
+This framework includes a GitHub Actions workflow at `.github/workflows/playwright.yml` that runs on push/PR to `master`:
 
-Example workflow:
+- **Checkout** → **Setup Node.js 18** → **Install deps** → **Install Playwright browsers**
+- **Seeds `.env`** from `.env.example` before running tests
+- **Runs tests** with `xvfb-run` (headless Chromium in CI)
+- **Uploads** `playwright-report/` as an artifact (30-day retention)
 
 ```yaml
 name: Playwright Tests
@@ -335,12 +382,14 @@ jobs:
           node-version: 18
       - run: npm ci
       - run: npx playwright install --with-deps
-      - run: npx playwright test
+      - run: cp .env.example .env
+      - run: xvfb-run --auto-servernum npx playwright test
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           name: playwright-report
           path: playwright-report/
+          retention-days: 30
 ```
 
 ---
