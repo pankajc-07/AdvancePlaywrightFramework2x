@@ -270,6 +270,7 @@ Step-by-step explainers for key framework files — ideal for onboarding and pre
 | [`KB/KB-e2e-checkout-spec-explained.md`](KB/KB-e2e-checkout-spec-explained.md) | `src/tests/e2e/e2e-checkout.spec.ts` — full checkout flow walkthrough, `visualStep` usage, `DataGenerator`, assertions, logging |
 | [`KB/2026-08-12-custom-reporter-wiring.md`](KB/2026-08-12-custom-reporter-wiring.md) | CustomReporter wiring — how the TTA reporter hooks into Playwright's reporter API |
 | [`KB/2026-08-28-dotenv-in-playwright-specs.md`](KB/2026-08-28-dotenv-in-playwright-specs.md) | dotenv in Playwright specs — why `dotenv.config()` in a spec fails due to Babel hoisting, and how `@config/env` solves it |
+| [`src/utils/ELI5.md`](src/utils/ELI5.md) | ELI5 Skill — Claude skill that explains any topic, code, concept, or error tailored to a specific audience (age, role, relationship, education level) |
 Also see [`AGENTS.md`](AGENTS.md) for AI coding agent conventions and critical pitfalls for this project.
 
 ---
