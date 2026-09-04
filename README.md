@@ -9,6 +9,7 @@ AdvancePlaywrightFramework2x/
 ├── src/
 │   ├── ai/               → AI agents (RCA, flaky analyzer, LLM config)
 │   ├── api/              → API client modules (REST/GraphQL)
+│   │   └── 01_restfulbooker_raw/  → Raw Playwright API specs (ping, POST, PUT, CRUD)
 │   ├── config/           → Centralized environment configuration
 │   ├── fixtures/         → Custom Playwright fixtures (auth, DB, API)
 │   ├── pages/            → Page Object Model (POM) classes
@@ -16,6 +17,7 @@ AdvancePlaywrightFramework2x/
 │   ├── tests/            → Test specifications (*.spec.ts)
 │   └── utils/            → Reusable utilities (logger, validators, parsers)
 ├── docs/                 → Project documentation & architecture decisions
+│   └── postman_api_collection/  → Reference Postman collection for Restful Booker API
 ├── KB/                   → Knowledge Base articles (step-by-step file explainers)
 ├── rules/                → Linting rules & coding standards
 ├── .github/              → GitHub Actions CI/CD workflows & Copilot instructions
@@ -111,6 +113,12 @@ TTA_ENV=staging npx playwright test
 
 # Run tests in debug mode
 npx playwright test --debug
+
+# Run API tests (Restful Booker)
+npx playwright test src/api/01_restfulbooker_raw/
+
+# Run a specific API spec
+npx playwright test src/api/01_restfulbooker_raw/05_crud.spec.ts
 ```
 
 ### Environment Configuration
@@ -209,6 +217,20 @@ Dedicated API clients under `src/api/` with built-in support for:
 - JSON path querying via jsonpath-plus
 - Request/response logging via Winston
 
+**Raw API specs** (`src/api/01_restfulbooker_raw/`) — standalone Playwright API tests against the [Restful Booker](https://restful-booker.herokuapp.com) service:
+
+| Spec | Covers |
+|------|--------|
+| `01_basic_ping.spec.ts` | Health-check ping (`GET /ping`) |
+| `02_post_operation.spec.ts` | Create booking (`POST /booking`) with payload validation |
+| `03_newcontext_api.spec.ts` | Isolated `request.newContext()` with custom headers & base URL |
+| `04_put_operation.spec.ts` | Auth token + create + update booking (`PUT /booking/:id`) |
+| `05_crud.spec.ts` | Full CRUD lifecycle: create token → create → read → update → partial update → delete → verify |
+
+**ApiHelper** (`src/utils/APiHelper.ts`) — a generic HTTP helper class for making typed `GET`, `POST`, `PUT`, `PATCH`, and `DELETE` requests, reusable across any test case.
+
+**Postman collection** (`docs/postman_api_collection/`) — reference Postman collection for the Restful Booker API, useful for manual exploration and contract comparison.
+
 ### Data-Driven Testing
 Drive tests from external data sources:
 - JSON test data files (e.g., `src/testdata/logintestdata.json`)
@@ -270,6 +292,7 @@ Step-by-step explainers for key framework files — ideal for onboarding and pre
 | [`KB/KB-e2e-checkout-spec-explained.md`](KB/KB-e2e-checkout-spec-explained.md) | `src/tests/e2e/e2e-checkout.spec.ts` — full checkout flow walkthrough, `visualStep` usage, `DataGenerator`, assertions, logging |
 | [`KB/2026-08-12-custom-reporter-wiring.md`](KB/2026-08-12-custom-reporter-wiring.md) | CustomReporter wiring — how the TTA reporter hooks into Playwright's reporter API |
 | [`KB/2026-08-28-dotenv-in-playwright-specs.md`](KB/2026-08-28-dotenv-in-playwright-specs.md) | dotenv in Playwright specs — why `dotenv.config()` in a spec fails due to Babel hoisting, and how `@config/env` solves it |
+| [`KB/2026-09-02-playwright-testdir-scoping.md`](KB/2026-09-02-playwright-testdir-scoping.md) | Playwright `testDir` scoping — why `npx playwright test src/api/spec.ts` reports "no tests found" when the spec lives outside `testDir`, and the two-project fix |
 | [`src/utils/ELI5.md`](src/utils/ELI5.md) | ELI5 Skill — Claude skill that explains any topic, code, concept, or error tailored to a specific audience (age, role, relationship, education level) |
 Also see [`AGENTS.md`](AGENTS.md) for AI coding agent conventions and critical pitfalls for this project.
 
