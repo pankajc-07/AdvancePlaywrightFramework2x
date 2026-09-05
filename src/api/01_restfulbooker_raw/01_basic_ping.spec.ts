@@ -6,3 +6,4 @@ test('ping request - GET', async ({ request }) => {
     console.log(responseData);
     expect(responseData.status()).toBe(201);
 });
+

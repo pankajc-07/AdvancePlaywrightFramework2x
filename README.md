@@ -115,10 +115,10 @@ TTA_ENV=staging npx playwright test
 npx playwright test --debug
 
 # Run API tests (Restful Booker)
-npx playwright test src/api/01_restfulbooker_raw/
+npx playwright test --project=api
 
 # Run a specific API spec
-npx playwright test src/api/01_restfulbooker_raw/05_crud.spec.ts
+npx playwright test src/api/01_restfulbooker_raw/05_crud.spec.ts --project=api
 ```
 
 ### Environment Configuration
@@ -344,17 +344,38 @@ npx allure open
 
 | Setting | Value |
 |---------|-------|
-| Test Directory | `./src/tests` |
+| Test Directory | `./src/tests` (chromium), `./src/api` (api) |
 | Test Timeout | 60 seconds |
 | Expect Timeout | 10 seconds |
 | Parallelism | Fully parallel |
 | Retries (CI) | 2 |
 | Retries (local) | 0 |
 | Browsers | Chromium (Desktop Chrome) |
+| Headless | `false` (headed by default) |
+| Viewport | 1920×1080 |
 | Reporter | HTML + List + Custom TTA Reporter |
-| Screenshot | On failure |
+| Screenshot | Gated by `ATTACH_SCREENSHOTS=true` |
 | Video | Always on |
 | Trace | Always on |
+
+### Multi-Project Setup
+
+The framework uses two Playwright projects to scope test discovery:
+
+| Project | `testDir` | Purpose |
+|---------|-----------|---------|
+| `chromium` | `./src/tests` | E2E browser tests (TTACart storefront) |
+| `api` | `./src/api` | API tests (Restful Booker) |
+
+This means you can run API tests without the browser project overhead:
+
+```bash
+# Run only API tests
+npx playwright test --project=api
+
+# Run only E2E browser tests
+npx playwright test --project=chromium
+```
 
 ### TypeScript Path Aliases
 
