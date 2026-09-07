@@ -23,17 +23,15 @@ export interface RetryOptions {
     retryCount?: number;
 }
 
-
-
 export class ApiHelper {
     private context: ApiContext;
 
     constructor(context: ApiContext) {
         this.context = context;
     }
-     /**
-    * Get the request object from the context
-    */
+    /**
+   * Get the request object from the context
+   */
 
     private getRequest(): APIRequestContext {
         if ('request' in this.context) {
@@ -162,6 +160,4 @@ export class ApiHelper {
         const status = response.status();
         return status >= 400 && status < 500;
     }
-
-
 }

@@ -18,9 +18,9 @@ interface CreateBookingResponse {
 test.describe('@P0 @regression Level 2 (ApiHelper) - POST create booking', () => {
     test('POST /booking creates a booking and echoes it back', async ({ request }, testInfo) => {
 
-            const api = new ApiHelper(request);
+        const api = new ApiHelper(request);
 
-            const payload = {
+        const payload = {
             firstname: 'Helper',
             lastname: 'Creator',
             totalprice: 640,
@@ -29,9 +29,9 @@ test.describe('@P0 @regression Level 2 (ApiHelper) - POST create booking', () =>
             additionalneeds: 'Breakfast',
         };
 
-         let body: CreateBookingResponse;
+        let body: CreateBookingResponse;
 
-           // Step 1 — send the create request
+        // Step 1 — send the create request
         await test.step('POST /booking with a new booking payload', async () => {
             log.info(`Step 1: POST /booking for ${payload.firstname} ${payload.lastname} (price ${payload.totalprice})`);
             const response = await api.post('/booking', payload);
@@ -56,7 +56,5 @@ test.describe('@P0 @regression Level 2 (ApiHelper) - POST create booking', () =>
             expect(body.booking.totalprice).toBe(payload.totalprice);
             log.info(`Step 2: booking ${body.bookingid} verified OK`);
         });
-
-
     });
 });
