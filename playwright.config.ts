@@ -67,7 +67,7 @@ export default defineConfig({
     },
     {
       name: 'api',
-      testDir: './src/api',
+      testDir: './src/tests/apisTests',
       use: {
         baseURL: process.env.API_BASE_URL || 'https://restful-booker.herokuapp.com'
       }

@@ -2,7 +2,6 @@
 import { test, expect } from '@playwright/test';
 import { logger } from '@utils/logger';
 
-
 interface BookingDates {
     checkin: string;
     checkout: string;
@@ -30,7 +29,7 @@ interface BookingFlowState {
 
 test.describe.serial('Restful Booker CRUD API', () => {
     const baseUrl = process.env.API_BASE_URL || 'https://restful-booker.herokuapp.com';
-    const headers = {
+     const headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
     };
@@ -64,9 +63,13 @@ test.describe.serial('Restful Booker CRUD API', () => {
             bookingFlowState.token = data.token;
             logger.info('Created auth token for CRUD flow');
         });
+
+
+
+
     });
     test('TC#2 @p0 - Create booking', async ({ request }) => {
-
+        
         await test.step('Create booking', async () => {
             const responseData = await request.post(`${baseUrl}/booking`, {
                 headers,
@@ -82,8 +85,10 @@ test.describe.serial('Restful Booker CRUD API', () => {
             bookingFlowState.bookingId = data.bookingid;
             logger.info(`Created booking id for CRUD flow: ${bookingFlowState.bookingId}`);
         });
+
     });
     test('TC#3 @p0 - Update booking', async ({ request }) => {
+
 
         await test.step('Update booking', async () => {
 
@@ -109,8 +114,11 @@ test.describe.serial('Restful Booker CRUD API', () => {
             logger.info(`Updated booking id ${bookingId}: ${data.firstname} ${data.lastname}`);
 
         });
+
+
+
     });
+
+
 });
-
-
 
