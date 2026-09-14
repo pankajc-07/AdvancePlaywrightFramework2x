@@ -23,21 +23,23 @@ export interface RetryOptions {
     retryCount?: number;
 }
 
+
+
 export class ApiHelper {
     private context: ApiContext;
 
     constructor(context: ApiContext) {
         this.context = context;
     }
-    /**
-   * Get the request object from the context
-   */
+     /**
+    * Get the request object from the context
+    */
 
     private getRequest(): APIRequestContext {
         if ('request' in this.context) {
             return this.context.request;
         }
-        return this.context as APIRequestContext;
+        return this.context;
     }
 
     /**
@@ -75,7 +77,8 @@ export class ApiHelper {
             case 'PATCH':
                 return await request.patch(fullUrl, { headers, data, timeout });
             default:
-                throw new Error(`Unsupported HTTP method: ${method}`);
+                // `method` is `never` here: the switch above is exhaustive over HttpMethod.
+                throw new Error(`Unsupported HTTP method: ${String(method)}`);
         }
     }
 
@@ -160,4 +163,6 @@ export class ApiHelper {
         const status = response.status();
         return status >= 400 && status < 500;
     }
+
+
 }

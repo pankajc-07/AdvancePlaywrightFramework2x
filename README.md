@@ -7,17 +7,18 @@ A robust, scalable, and production-ready Playwright test automation framework wi
 ```
 AdvancePlaywrightFramework2x/
 ├── src/
-│   ├── ai/               → AI agents (RCA, flaky analyzer, LLM config)
+│   ├── ai/               → AI agents (RCA, flaky analyzer, data gen, self-heal, LLM config, agent factory)
 │   ├── api/              → API client modules (BookingApi, helpers)
 │   ├── config/           → Centralized environment configuration
 │   ├── fixtures/         → Custom Playwright fixtures (auth, DB, API, booker)
 │   ├── pages/            → Page Object Model (POM) classes
-│   ├── testdata/         → Static test data, CSV/Excel, Faker factories, booking data
+│   ├── testdata/         → Static test data, CSV/Excel, Faker factories, booking data, JSON schemas
 │   ├── tests/            → Test specifications (*.spec.ts)
-│   │   └── apisTests/    → Restful Booker API tests (raw, ApiHelper, fixture, JSONPath)
-│   └── utils/            → Reusable utilities (logger, validators, parsers, ApiHelper)
+│   │   ├── aiTest/       → AI agent demo tests (RCA, flaky, self-heal, data gen)
+│   │   └── apisTests/    → Restful Booker API tests (raw, ApiHelper, fixture, JSONPath, AJV schema)
+│   └── utils/            → Reusable utilities (logger, validators, parsers, ApiHelper, SchemaValidator, selfHeal)
 ├── docs/                 → Project documentation & architecture decisions
-│   └── postman_api_collection/  → Reference Postman collection for Restful Booker API
+│   └── postman_api_collection/  → Reference Postman collection for Restful Booker API + AI prompts
 ├── KB/                   → Knowledge Base articles (step-by-step file explainers)
 ├── rules/                → Linting rules & coding standards
 ├── .github/              → GitHub Actions CI/CD workflows & Copilot instructions
@@ -232,12 +233,50 @@ Dedicated API clients under `src/api/` with built-in support for:
 | `02_restfulbooker_apiHelper/` | Tests using the `ApiHelper` wrapper — create & update booking |
 | `03_restfulbooker_fixture_e2e_api/` | Fixture-driven E2E API tests — full CRUD lifecycle & negative scenarios |
 | `04_jsonpath_plus/` | JSONPath query examples with a static `store.json` dataset |
+| `05_ajv_json_schema/` | AJV-based JSON schema validation tests — validate booking payloads against schemas |
 
 **Booker Fixture** (`src/fixtures/booker.fixture.ts`) — custom fixture providing `bookingApi` and `bookerToken` to tests, with automatic token generation via `POST /auth`.
 
 **Booking Test Data** (`src/testdata/booking.data.ts`) — typed booking builders using `DataGenerator` for randomized yet reproducible test data.
 
-**Postman collection** (`docs/postman_api_collection/`) — reference Postman collection for the Restful Booker API, useful for manual exploration and contract comparison.
+**Postman collection** (`docs/postman_api_collection/`) — reference Postman collection for the Restful Booker API, useful for manual exploration and contract comparison. Also includes AI prompt templates (`ai-factory.prompt.md`, `Playwright-Worker.md`) for agent-based test generation.
+
+### JSON Schema Validation
+
+**SchemaValidator** (`src/utils/SchemaValidator.ts`) — a reusable AJV-based validator that compiles JSON schemas and validates API responses with detailed error reporting.
+
+**JSON Schemas** (`src/testdata/schemas/`) — typed JSON Schema definitions for:
+- `create-booking.schema.json` — booking payload validation
+- `ai-booking-payload.schema.json` — AI-generated booking payload schema
+- `ai-rca-verdict.schema.json` — RCA agent output schema
+- `ai-flaky-summary.schema.json` — flaky analyzer output schema
+- `ai-heal-candidates.schema.json` — self-heal candidate schema
+
+### AI Agent Suite
+
+The framework includes a suite of AI-powered agents under `src/ai/`:
+
+| Agent | File | Purpose |
+|-------|------|---------|
+| **RCA Agent** | `src/ai/agents/rcaAgent.ts` | Root Cause Analysis — analyzes failed tests and produces a verdict with likely cause and fix suggestion |
+| **Flaky Analyzer** | `src/ai/agents/flakyAnalyzer.ts` | Compares current vs previous build results to detect flaky tests and compute stability scores |
+| **Data Gen Agent** | `src/ai/agents/dataGenAgent.ts` | Generates realistic test data (credentials, customers, bookings) using LLM prompts |
+| **Self-Heal Agent** | `src/ai/agents/selfHealAgent.ts` | Analyzes broken locators and suggests resilient alternatives when tests fail due to selector changes |
+
+**Agent Infrastructure:**
+- **LLM Client** (`src/ai/config/LLMClient.ts`) — unified interface for LLM API calls with configurable providers
+- **Agent Factory** (`src/ai/config/agentFactory.ts`) — factory pattern for creating and configuring AI agents
+- **Providers** (`src/ai/config/providers.ts`) — LLM provider configurations (OpenAI, Anthropic, etc.)
+
+**AI Demo Tests** (`src/tests/aiTest/`) — executable demos showcasing each agent:
+- `RcaDemo.spec.ts` — demonstrates RCA agent on a simulated failure
+- `FlakyDemo.spec.ts` — demonstrates flaky test detection
+- `SelfHealDemo.spec.ts` — demonstrates self-healing locator suggestions
+- `CustomDataGen.spec.ts` — demonstrates AI-powered test data generation
+
+### Self-Healing Locators
+
+**SelfHeal** (`src/utils/selfHeal.ts`) — a utility that intercepts locator failures and attempts to find alternative selectors using role-based, text-based, and test-id-based strategies before the test fails.
 
 ### Data-Driven Testing
 Drive tests from external data sources:
