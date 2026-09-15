@@ -18,7 +18,10 @@ AdvancePlaywrightFramework2x/
 │   │   └── apisTests/    → Restful Booker API tests (raw, ApiHelper, fixture, JSONPath, AJV schema)
 │   └── utils/            → Reusable utilities (logger, validators, parsers, ApiHelper, SchemaValidator, selfHeal)
 ├── docs/                 → Project documentation & architecture decisions
-│   └── postman_api_collection/  → Reference Postman collection for Restful Booker API + AI prompts
+│   ├── postman_api_collection/  → Reference Postman collection for Restful Booker API
+│   ├── ai-factory.prompt.md     → AI prompt templates for agent-based test generation
+│   ├── Playwright-Worker.md     → Playwright worker architecture
+│   └── quality-gates.md         → Quality gate rules for AI-assisted changes
 ├── KB/                   → Knowledge Base articles (step-by-step file explainers)
 ├── rules/                → Linting rules & coding standards
 ├── .github/              → GitHub Actions CI/CD workflows & Copilot instructions
@@ -264,9 +267,9 @@ The framework includes a suite of AI-powered agents under `src/ai/`:
 | **Self-Heal Agent** | `src/ai/agents/selfHealAgent.ts` | Analyzes broken locators and suggests resilient alternatives when tests fail due to selector changes |
 
 **Agent Infrastructure:**
-- **LLM Client** (`src/ai/config/LLMClient.ts`) — unified interface for LLM API calls with configurable providers
-- **Agent Factory** (`src/ai/config/agentFactory.ts`) — factory pattern for creating and configuring AI agents
-- **Providers** (`src/ai/config/providers.ts`) — LLM provider configurations (OpenAI, Anthropic, etc.)
+- **LLM Client** (`src/ai/LLMClient.ts`) — unified interface for LLM API calls with multi-provider support (DeepSeek, OpenAI, Anthropic)
+- **Agent Factory** (`src/ai/agentFactory.ts`) — factory pattern for creating and configuring AI agents with built-in schema validation and retry
+- **Providers** (`src/ai/config/providers.ts`) — LLM provider resolution from environment variables (`DEEPSEEK_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
 
 **AI Demo Tests** (`src/tests/aiTest/`) — executable demos showcasing each agent:
 - `RcaDemo.spec.ts` — demonstrates RCA agent on a simulated failure
@@ -329,6 +332,9 @@ Detailed framework documentation is available in the [`docs/`](docs/) folder:
 |----------|-------------|
 | [`docs/project-structure.md`](docs/project-structure.md) | Folder structure, execution flow diagram, component summaries, and known gaps |
 | [`docs/deep-dive.md`](docs/deep-dive.md) | Line-by-line deep-dive of every source file — BasePage, UtilElementLocator, CustomReporter, AI agents, DataGenerator, logger, playwright config, and more |
+| [`docs/quality-gates.md`](docs/quality-gates.md) | Quality gates for AI-assisted changes — ai-slop, ponytail, over-engineering, and framework-patterns checks to run before raising a PR |
+| [`docs/ai-factory.prompt.md`](docs/ai-factory.prompt.md) | AI prompt templates for agent-based test generation |
+| [`docs/Playwright-Worker.md`](docs/Playwright-Worker.md) | Playwright worker architecture and execution model |
 ### 📖 Knowledge Base (KB)
 
 Step-by-step explainers for key framework files — ideal for onboarding and presentations:
@@ -451,7 +457,11 @@ import { LoginPage } from '../pages/LoginPage';
 
 ## 🔧 CI/CD Integration
 
-This framework includes a GitHub Actions workflow at `.github/workflows/playwright.yml` that runs on push/PR to `master`:
+This framework includes two GitHub Actions workflows:
+
+### Playwright Tests (`.github/workflows/playwright.yml`)
+
+Runs on push/PR to `master`:
 
 - **Checkout** → **Setup Node.js 18** → **Install deps** → **Install Playwright browsers**
 - **Seeds `.env`** from `.env.example` before running tests
@@ -484,6 +494,17 @@ jobs:
           path: playwright-report/
           retention-days: 30
 ```
+
+### Quality Gate (`.github/workflows/quality-gate.yml`)
+
+Runs on PR to `master`/`main`. Enforces the four quality gates from [`docs/quality-gates.md`](docs/quality-gates.md):
+
+- **framework-patterns** — typecheck, spec filename validation, no committed secrets
+- **ai-slop** — ESLint, no hallucinated APIs or dead code
+- **ponytail** — no duplicate logging or redundant test wrappers
+- **over-engineering** — no single-caller abstractions or unused exports
+
+See [`docs/quality-gates.md`](docs/quality-gates.md) for the full ruleset.
 
 ---
 
