@@ -28,12 +28,5 @@ test.describe('TTACart - Login', () => {
             log.info('Asserting login form is hidden after login');
             await loginPage.waitForLoginButtonHidden();
         });
-
-
-
     });
-
-
-
-
 });

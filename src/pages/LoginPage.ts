@@ -9,8 +9,6 @@ import { BasePage } from './BasePage';
  *   await login.loginAs('standard_user', 'tta_secret');
  */
 
-
-
 export class LoginPage extends BasePage {
 
     static readonly PATH = '/playwright/ttacart/index.html';
