@@ -14,9 +14,16 @@ AdvancePlaywrightFramework2x/
 │   ├── pages/            → Page Object Model (POM) classes
 │   ├── testdata/         → Static test data, CSV/Excel, Faker factories, booking data, JSON schemas
 │   ├── cucumber/          → Cucumber BDD tests (features + step definitions)
-│   │   ├── level-00-installation/
+│   │   ├── level-00-installation/  → Smoke test — Playwright + Cucumber wiring
 │   │   │   ├── feature/   → Gherkin .feature files
 │   │   │   └── steps/     → Step definition files
+│   │   ├── level-01-basic/         → Basic login scenarios (positive + negative)
+│   │   │   ├── features/  → Gherkin .feature files
+│   │   │   └── steps/     → Step definition files
+│   │   ├── level-02-data-driven/   → Scenario Outline, Data Tables, external JSON
+│   │   │   ├── features/  → Gherkin .feature files
+│   │   │   ├── steps/     → Step definition files
+│   │   │   └── data/      → External JSON test data
 │   │   └── support/       → World, hooks, and shared setup
 │   ├── tests/            → Test specifications (*.spec.ts)
 │   │   ├── aiTest/       → AI agent demo tests (RCA, flaky, self-heal, data gen)
@@ -130,7 +137,13 @@ npx playwright test --project=api
 npx playwright test src/tests/apisTests/03_restfulbooker_fixture_e2e_api/booking-crud.e2e.spec.ts --project=api
 
 # Run Cucumber BDD tests
-npx cucumber-js src/cucumber/level-00-installation/feature/**/*.feature --require src/cucumber/**/*.ts
+npm run cucumber:level0          # Level 0 — smoke / wiring
+npm run cucumber:level1          # Level 1 — basic login scenarios
+npm run cucumber:level2          # Level 2 — data-driven (outline, datatable, external JSON)
+npm run cucumber:headed          # Run with headed browser
+
+# Or run a specific feature file directly
+npx cucumber-js src/cucumber/level-01-basic/features/login.feature --require "src/cucumber/**/*.ts"
 ```
 
 ### Environment Configuration
@@ -341,8 +354,9 @@ Behavior-Driven Development (BDD) tests using Cucumber + Playwright, located und
 
 | Directory | Purpose |
 |-----------|---------|
-| `src/cucumber/level-00-installation/feature/` | Gherkin `.feature` files — human-readable scenarios |
-| `src/cucumber/level-00-installation/steps/` | Step definitions — TypeScript glue code mapping Gherkin steps to Playwright actions |
+| `src/cucumber/level-00-installation/` | Smoke test — verifies Playwright + Cucumber wiring works |
+| `src/cucumber/level-01-basic/` | Basic login scenarios — positive path, locked-out user, wrong password |
+| `src/cucumber/level-02-data-driven/` | Data-driven patterns — Scenario Outline, Data Tables, external JSON |
 | `src/cucumber/support/world.ts` | Custom World — shared state, page objects, and browser context across steps |
 | `src/cucumber/support/hooks.ts` | Lifecycle hooks — `BeforeAll`, `AfterAll`, `Before`, `After` with screenshot on failure |
 | `src/cucumber/tsconfig.json` | Dedicated TypeScript config for cucumber (CommonJS, path aliases, ts-node) |
@@ -359,7 +373,11 @@ Behavior-Driven Development (BDD) tests using Cucumber + Playwright, located und
 - `Before` — creates a fresh context + page per scenario, calls `initPages()`
 - `After` — attaches a screenshot on failure, then closes page and context
 
-**Example Feature** (`level-00-installation/feature/smoke.feature`):
+#### Level 0 — Smoke / Wiring (`level-00-installation/`)
+
+Verifies that Playwright + Cucumber are correctly wired together.
+
+**Feature** (`feature/smoke.feature`):
 ```gherkin
 @level0 @smoke
 Feature: Cucumber + Playwright wiring (Level 0)
@@ -369,13 +387,8 @@ Feature: Cucumber + Playwright wiring (Level 0)
         Then the page title should contain "TTACart"
 ```
 
-**Example Step Definition** (`level-00-installation/steps/smoke.steps.ts`):
+**Step Definition** (`steps/smoke.steps.ts`):
 ```typescript
-import { Given, Then } from '@cucumber/cucumber';
-import { expect } from '@playwright/test';
-import { CustomWorld } from '../../support/world';
-import { LoginPage } from '../../../pages/LoginPage';
-
 Given('I open the TTACart login page', async function (this: CustomWorld) {
     await this.page.goto(LoginPage.PATH);
 });
@@ -385,13 +398,149 @@ Then('the page title should contain {string}', async function (this: CustomWorld
 });
 ```
 
+#### Level 1 — Basic Login Scenarios (`level-01-basic/`)
+
+Covers positive and negative login paths using `Background` for shared setup.
+
+**Feature** (`features/login.feature`):
+```gherkin
+@level1 @login
+Feature: TTACart Login (Level 1 — basic scenarios)
+
+  Background:
+    Given I am on the TTACart login page
+
+  @smoke @P0
+  Scenario: A standard user can log in
+    When I log in as "standard_user" with password "tta_secret"
+    Then I should land on the products page
+
+  @negative
+  Scenario: A locked-out user is refused
+    When I log in as "locked_out_user" with password "tta_secret"
+    Then I should see a login error containing "locked out"
+
+  @negative
+  Scenario: Wrong password is rejected
+    When I log in as "standard_user" with password "wrong_password"
+    Then I should see a login error containing "do not match"
+```
+
+**Step Definition** (`steps/login.steps.ts`):
+```typescript
+Given('I am on the TTACart login page', async function (this: CustomWorld) {
+    await this.loginPage.open();
+});
+
+When('I log in as {string} with password {string}',
+    async function (this: CustomWorld, username: string, password: string) {
+        await this.loginPage.loginAs(username, password);
+    });
+
+Then('I should land on the products page', async function (this: CustomWorld) {
+    await this.inventoryPage.assertLoaded();
+});
+
+Then('I should see a login error containing {string}',
+    async function (this: CustomWorld, fragment: string) {
+        const error = this.page.locator('[data-test="error"]');
+        await expect(error).toBeVisible();
+        await expect(error).toContainText(fragment);
+    });
+```
+
+#### Level 2 — Data-Driven Patterns (`level-02-data-driven/`)
+
+Demonstrates three data-driven BDD patterns:
+
+| Pattern | Feature File | Description |
+|---------|-------------|-------------|
+| **Scenario Outline** | `features/login-outline.feature` | Parameterized login with `Examples` tables — valid users land on products, rejected users see errors |
+| **Data Table** | `features/cart-datatable.feature` | Inline `DataTable` — add multiple products to cart in a single step |
+| **External JSON** | `features/checkout-external-data.feature` | Persona-driven checkout — customer data loaded from `data/customers.json` |
+
+**Scenario Outline** (`features/login-outline.feature`):
+```gherkin
+@level2 @outline
+Feature: TTACart login outcomes (Level 2 — Scenario Outline)
+
+  Background:
+    Given I am on the TTACart login page
+
+  Scenario Outline: <username> logging in ends on the <outcome>
+    When I log in as "<username>" with password "<password>"
+    Then I should see the "<outcome>"
+
+    Examples: valid users
+      | username                | password   | outcome  |
+      | standard_user           | tta_secret | products |
+      | problem_user            | tta_secret | products |
+      | performance_glitch_user | tta_secret | products |
+
+    Examples: rejected attempts
+      | username        | password      | outcome |
+      | locked_out_user | tta_secret    | error   |
+      | standard_user   | wrong_password| error   |
+```
+
+**Data Table** (`features/cart-datatable.feature`):
+```gherkin
+@level2 @datatable
+Feature: Adding products from a Data Table (Level 2)
+
+  Background:
+    Given I am logged in as a standard user
+    And I am on the products page
+
+  Scenario: Add three products to the cart in one step
+    When I add the following products to the cart:
+      | productId                    |
+      | tta-practice-backpack        |
+      | tta-bike-light               |
+      | test-allthethings-tshirt-red |
+    Then the cart should contain 3 products
+```
+
+**External JSON** (`features/checkout-external-data.feature`):
+```gherkin
+@level2 @external @e2e
+Feature: End-to-end checkout, data from an external JSON file (Level 2)
+
+  Background:
+    Given I am logged in as a standard user
+
+  Scenario Outline: <persona> completes a full checkout
+    When I add product "test-allthethings-tshirt-red" to the cart
+    And I check out as the "<persona>" customer
+    Then the order should be confirmed
+
+    Examples:
+      | persona |
+      | alice   |
+      | bob     |
+      | carol   |
+```
+
+**External Data** (`data/customers.json`):
+```json
+{
+  "alice": { "firstName": "Alice", "lastName": "Walker", "postalCode": "560001" },
+  "bob":   { "firstName": "Bob",   "lastName": "Singh",  "postalCode": "110011" },
+  "carol": { "firstName": "Carol", "lastName": "Mendes", "postalCode": "400001" }
+}
+```
+
 **Running Cucumber Tests:**
 ```bash
-# Run all cucumber features
-npx cucumber-js src/cucumber/level-00-installation/feature/**/*.feature --require src/cucumber/**/*.ts
+# Via npm scripts (recommended)
+npm run cucumber:level0          # Level 0 — smoke / wiring
+npm run cucumber:level1          # Level 1 — basic login scenarios
+npm run cucumber:level2          # Level 2 — data-driven patterns
+npm run cucumber:headed          # Run with headed browser
 
-# Run with headed browser
-HEADED=true npx cucumber-js src/cucumber/level-00-installation/feature/**/*.feature --require src/cucumber/**/*.ts
+# Or run a specific feature file directly
+npx cucumber-js src/cucumber/level-01-basic/features/login.feature --require "src/cucumber/**/*.ts"
+npx cucumber-js src/cucumber/level-02-data-driven/features/**/*.feature --require "src/cucumber/**/*.ts"
 ```
 
 ### Logging
