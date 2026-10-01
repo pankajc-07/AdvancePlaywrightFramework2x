@@ -37,6 +37,7 @@ AdvancePlaywrightFramework2x/
 ├── KB/                   → Knowledge Base articles (step-by-step file explainers)
 ├── rules/                → Linting rules & coding standards
 ├── .github/              → GitHub Actions CI/CD workflows & Copilot instructions
+├── cucumber.js           → Cucumber profiles (level0/level1/level2) + tsx TypeScript loader
 ├── .env.example          → Environment variable template (committed)
 ├── .env                  → Environment variables (gitignored)
 ├── AGENTS.md             → AI coding agent conventions & pitfalls
@@ -140,10 +141,13 @@ npx playwright test src/tests/apisTests/03_restfulbooker_fixture_e2e_api/booking
 npm run cucumber:level0          # Level 0 — smoke / wiring
 npm run cucumber:level1          # Level 1 — basic login scenarios
 npm run cucumber:level2          # Level 2 — data-driven (outline, datatable, external JSON)
-npm run cucumber:headed          # Run with headed browser
+npm run cucumber:headed          # Run with headed browser (bash only)
 
-# Or run a specific feature file directly
-npx cucumber-js src/cucumber/level-01-basic/features/login.feature --require "src/cucumber/**/*.ts"
+# Windows PowerShell headed mode
+$env:HEADED="1"; npx cucumber-js --profile level2
+
+# Or run a specific profile directly
+npx cucumber-js --profile level1
 ```
 
 ### Environment Configuration
@@ -198,6 +202,7 @@ Set the `TTA_ENV` environment variable to target different environments:
 | Package | Purpose |
 |---------|---------|
 | [@cucumber/cucumber](https://github.com/cucumber/cucumber-js) | Gherkin-based BDD test runner |
+| [tsx](https://github.com/privatenumber/tsx) | TypeScript execution for Cucumber (replaces ts-node for Node 24+ / TS 7+) |
 
 ---
 
@@ -359,7 +364,8 @@ Behavior-Driven Development (BDD) tests using Cucumber + Playwright, located und
 | `src/cucumber/level-02-data-driven/` | Data-driven patterns — Scenario Outline, Data Tables, external JSON |
 | `src/cucumber/support/world.ts` | Custom World — shared state, page objects, and browser context across steps |
 | `src/cucumber/support/hooks.ts` | Lifecycle hooks — `BeforeAll`, `AfterAll`, `Before`, `After` with screenshot on failure |
-| `src/cucumber/tsconfig.json` | Dedicated TypeScript config for cucumber (CommonJS, path aliases, ts-node) |
+| `src/cucumber/tsconfig.json` | Dedicated TypeScript config for cucumber (CommonJS, path aliases) |
+| `cucumber.js` | Cucumber runner config — profiles (`level0`/`level1`/`level2`), tsx loader, paths, formats |
 
 **Custom World** (`src/cucumber/support/world.ts`):
 - Manages `Browser`, `BrowserContext`, and `Page` lifecycle
@@ -536,11 +542,14 @@ Feature: End-to-end checkout, data from an external JSON file (Level 2)
 npm run cucumber:level0          # Level 0 — smoke / wiring
 npm run cucumber:level1          # Level 1 — basic login scenarios
 npm run cucumber:level2          # Level 2 — data-driven patterns
-npm run cucumber:headed          # Run with headed browser
+npm run cucumber:headed          # Run with headed browser (bash only)
 
-# Or run a specific feature file directly
-npx cucumber-js src/cucumber/level-01-basic/features/login.feature --require "src/cucumber/**/*.ts"
-npx cucumber-js src/cucumber/level-02-data-driven/features/**/*.feature --require "src/cucumber/**/*.ts"
+# Or run a specific profile directly
+npx cucumber-js --profile level1
+npx cucumber-js --profile level2
+
+# Windows PowerShell headed mode
+$env:HEADED="1"; npx cucumber-js --profile level2
 ```
 
 ### Logging
