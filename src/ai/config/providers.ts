@@ -29,6 +29,18 @@ export function resolveProvider(): ResolvedProvider {
         };
     }
 
+    const openRouterKey = process.env.OPENROUTER_API_KEY;
+    if (openRouterKey) {
+        return {
+            name: 'openrouter',
+            model: process.env.OPENROUTER_MODEL || 'openai/gpt-4o',
+            baseUrl: 'https://openrouter.ai/api/v1',
+            apiKey: openRouterKey,
+            keyEnv: 'OPENROUTER_API_KEY',
+            dialect: 'openai',
+        };
+    }
+
     const openaiKey = process.env.OPENAI_API_KEY;
     if (openaiKey) {
         return {

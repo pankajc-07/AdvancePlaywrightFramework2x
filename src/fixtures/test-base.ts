@@ -29,6 +29,8 @@ import { CartPage } from '@pages/CartPage';
 import { CheckoutStepOnePage } from '@pages/CheckoutStepOnePage';
 import { CheckoutStepTwoPage } from '@pages/CheckoutStepTwoPage';
 import { CheckoutCompletePage } from '@pages/CheckoutCompletePage';
+import { ApplitoolsLoginPage } from '@pages/practice01/ApplitoolsLoginPage';
+import { ApplitoolsAppPage } from '@pages/practice01/ApplitoolsAppPage';
 import loginTestData from '@testdata/logintestdata.json';
 
 //This is additional code for Valid and Invalid user start here
@@ -68,6 +70,10 @@ export type TestFixture = {
     checkoutStepTwoPage: CheckoutStepTwoPage;
     checkoutCompletePage: CheckoutCompletePage;
 
+    // practice01 — Applitools demo
+    applitoolsLoginPage: ApplitoolsLoginPage;
+    applitoolsAppPage: ApplitoolsAppPage;
+
     // Ready-to-use application states => Aditional code for Valid and Invalid user
     invalidLogin: InvalidLoginState;
     validLogin: LoginPage;
@@ -97,6 +103,13 @@ export const test = base.extend<TestFixture>({
     },
     checkoutCompletePage: async ({ page }, use) => {
         await use(new CheckoutCompletePage(page));
+    },
+
+    applitoolsLoginPage: async ({ page }, use) => {
+        await use(new ApplitoolsLoginPage(page));
+    },
+    applitoolsAppPage: async ({ page }, use) => {
+        await use(new ApplitoolsAppPage(page));
     },
 
     // Independent negative state: the locked-out account remains on login.
