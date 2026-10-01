@@ -51,6 +51,7 @@
     "prettier": "^3.8.3",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.23.15",
     "typescript-eslint": "^8.60.1",
     "winston": "^3.19.0",
     "xlsx": "^0.18.5"

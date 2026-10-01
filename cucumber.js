@@ -10,8 +10,8 @@
 const common = {
     /** Step definitions, hooks, and world (loaded before scenarios). */
     require: ['src/cucumber/support/world.ts', 'src/cucumber/support/hooks.ts'],
-    /** ts-node / tsconfig-paths setup so TypeScript + path aliases work. */
-    requireModule: ['ts-node/register', 'tsconfig-paths/register'],
+    /** tsx handles TypeScript + path aliases (replaces ts-node + tsconfig-paths). */
+    requireModule: ['tsx/cjs'],
     /** Output format. */
     format: ['progress-bar', 'html:cucumber-report.html'],
     /** Default timeout per step (ms). */
@@ -51,6 +51,7 @@ module.exports = {
         paths: ['src/cucumber/level-02-data-driven/**/*.feature'],
         require: [
             ...common.require,
+            'src/cucumber/level-01-basic/steps/*.steps.ts',
             'src/cucumber/level-02-data-driven/steps/*.steps.ts',
         ],
     },
