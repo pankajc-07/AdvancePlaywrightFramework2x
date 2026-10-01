@@ -13,6 +13,11 @@ AdvancePlaywrightFramework2x/
 │   ├── fixtures/         → Custom Playwright fixtures (auth, DB, API, booker)
 │   ├── pages/            → Page Object Model (POM) classes
 │   ├── testdata/         → Static test data, CSV/Excel, Faker factories, booking data, JSON schemas
+│   ├── cucumber/          → Cucumber BDD tests (features + step definitions)
+│   │   ├── level-00-installation/
+│   │   │   ├── feature/   → Gherkin .feature files
+│   │   │   └── steps/     → Step definition files
+│   │   └── support/       → World, hooks, and shared setup
 │   ├── tests/            → Test specifications (*.spec.ts)
 │   │   ├── aiTest/       → AI agent demo tests (RCA, flaky, self-heal, data gen)
 │   │   └── apisTests/    → Restful Booker API tests (raw, ApiHelper, fixture, JSONPath, AJV schema)
@@ -123,6 +128,9 @@ npx playwright test --project=api
 
 # Run a specific API spec
 npx playwright test src/tests/apisTests/03_restfulbooker_fixture_e2e_api/booking-crud.e2e.spec.ts --project=api
+
+# Run Cucumber BDD tests
+npx cucumber-js src/cucumber/level-00-installation/feature/**/*.feature --require src/cucumber/**/*.ts
 ```
 
 ### Environment Configuration
@@ -171,6 +179,12 @@ Set the `TTA_ENV` environment variable to target different environments:
 | Package | Purpose |
 |---------|---------|
 | [Allure Playwright](https://github.com/allure-framework/allure-js) | Rich HTML test reports with history & trends |
+
+### BDD
+
+| Package | Purpose |
+|---------|---------|
+| [@cucumber/cucumber](https://github.com/cucumber/cucumber-js) | Gherkin-based BDD test runner |
 
 ---
 
@@ -318,6 +332,67 @@ assertEnv('STANDARD_USER', 'TTA_SECRET');
 
 ### Env-Driven E2E Checkout Test
 `src/tests/e2e/e2e-checkout-env.spec.ts` is a checkout test driven entirely by `.env` variables. It reads credentials, item ID, and customer details from the environment, falling back to Faker for optional fields. This makes it easy to run the same flow with different data across environments without touching test code.
+
+### Cucumber BDD Testing
+
+Behavior-Driven Development (BDD) tests using Cucumber + Playwright, located under `src/cucumber/`.
+
+**Structure:**
+
+| Directory | Purpose |
+|-----------|---------|
+| `src/cucumber/level-00-installation/feature/` | Gherkin `.feature` files — human-readable scenarios |
+| `src/cucumber/level-00-installation/steps/` | Step definitions — TypeScript glue code mapping Gherkin steps to Playwright actions |
+| `src/cucumber/support/world.ts` | Custom World — shared state, page objects, and browser context across steps |
+| `src/cucumber/support/hooks.ts` | Lifecycle hooks — `BeforeAll`, `AfterAll`, `Before`, `After` with screenshot on failure |
+| `src/cucumber/tsconfig.json` | Dedicated TypeScript config for cucumber (CommonJS, path aliases, ts-node) |
+
+**Custom World** (`src/cucumber/support/world.ts`):
+- Manages `Browser`, `BrowserContext`, and `Page` lifecycle
+- Pre-initializes all Page Objects (`LoginPage`, `InventoryPage`, `CartPage`, `CheckoutStepOnePage`, `CheckoutStepTwoPage`, `CheckoutCompletePage`)
+- Provides a `scratch` bag for sharing arbitrary data between steps
+- Reads `BASE_URL`, `STANDARD_USER`, and `TTA_SECRET` from environment variables
+
+**Hooks** (`src/cucumber/support/hooks.ts`):
+- `BeforeAll` — launches a shared Chromium browser instance
+- `AfterAll` — closes the browser
+- `Before` — creates a fresh context + page per scenario, calls `initPages()`
+- `After` — attaches a screenshot on failure, then closes page and context
+
+**Example Feature** (`level-00-installation/feature/smoke.feature`):
+```gherkin
+@level0 @smoke
+Feature: Cucumber + Playwright wiring (Level 0)
+
+    Scenario: The TTACart login page loads
+        Given I open the TTACart login page
+        Then the page title should contain "TTACart"
+```
+
+**Example Step Definition** (`level-00-installation/steps/smoke.steps.ts`):
+```typescript
+import { Given, Then } from '@cucumber/cucumber';
+import { expect } from '@playwright/test';
+import { CustomWorld } from '../../support/world';
+import { LoginPage } from '../../../pages/LoginPage';
+
+Given('I open the TTACart login page', async function (this: CustomWorld) {
+    await this.page.goto(LoginPage.PATH);
+});
+
+Then('the page title should contain {string}', async function (this: CustomWorld, expected: string) {
+    await expect(this.page).toHaveTitle(new RegExp(expected, 'i'));
+});
+```
+
+**Running Cucumber Tests:**
+```bash
+# Run all cucumber features
+npx cucumber-js src/cucumber/level-00-installation/feature/**/*.feature --require src/cucumber/**/*.ts
+
+# Run with headed browser
+HEADED=true npx cucumber-js src/cucumber/level-00-installation/feature/**/*.feature --require src/cucumber/**/*.ts
+```
 
 ### Logging
 Centralized Winston logger under `src/utils/` with configurable log levels, formats, and transports.
