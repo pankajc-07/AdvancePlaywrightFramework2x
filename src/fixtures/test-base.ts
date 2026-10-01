@@ -31,6 +31,7 @@ import { CheckoutStepTwoPage } from '@pages/CheckoutStepTwoPage';
 import { CheckoutCompletePage } from '@pages/CheckoutCompletePage';
 import { ApplitoolsLoginPage } from '@pages/practice01/ApplitoolsLoginPage';
 import { ApplitoolsAppPage } from '@pages/practice01/ApplitoolsAppPage';
+import { DemoQAWebTablesPage } from '@pages/practice02/DemoQAWebTablesPage';
 import loginTestData from '@testdata/logintestdata.json';
 
 //This is additional code for Valid and Invalid user start here
@@ -74,6 +75,9 @@ export type TestFixture = {
     applitoolsLoginPage: ApplitoolsLoginPage;
     applitoolsAppPage: ApplitoolsAppPage;
 
+    // practice02 — DemoQA Web Tables
+    demoQAWebTablesPage: DemoQAWebTablesPage;
+
     // Ready-to-use application states => Aditional code for Valid and Invalid user
     invalidLogin: InvalidLoginState;
     validLogin: LoginPage;
@@ -110,6 +114,10 @@ export const test = base.extend<TestFixture>({
     },
     applitoolsAppPage: async ({ page }, use) => {
         await use(new ApplitoolsAppPage(page));
+    },
+
+    demoQAWebTablesPage: async ({ page }, use) => {
+        await use(new DemoQAWebTablesPage(page));
     },
 
     // Independent negative state: the locked-out account remains on login.
