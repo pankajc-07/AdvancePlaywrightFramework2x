@@ -1,0 +1,9 @@
+[    2721ms] [LOG] webtables @ https://demoqa.com/assets/index-D_rDx8ml.js:38
+[    3879ms] [WARNING] [GPT] PubAdsService.setTargeting is deprecated, use googletag.setConfig({targeting: ...}) instead.
+https://goo.gle/gpt-message#170 @ https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202609290101/pubads_impl.js?cb=122881314:22
+[    4207ms] [WARNING] [GPT] Using deprecated googletag.encryptedSignalProviders. Please use googletag.secureSignalProviders instead.
+https://goo.gle/gpt-message#155 @ https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202609290101/pubads_impl.js?cb=122881314:22
+[    4229ms] [WARNING] Google Deploy of the SharedId library has been deprecated. Please select another option in the GAM UI. If you use Prebid, we suggest the Prebid.js UserId option. If you do not, you may configure GAM to allow Google to share a first party user identifier with OB and AB participants, which is either the publisherProvidedId or the __gads value when that is missing. @ https://cdn.jsdelivr.net/gh/prebid/shared-id/pubcid.js/docs/pubcid.min.js:0
+[    4582ms] [WARNING] [GPT] Using deprecated googletag.encryptedSignalProviders. Please use googletag.secureSignalProviders instead.
+https://goo.gle/gpt-message#155 @ https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202609290101/pubads_impl.js?cb=122881314:22
+[    5614ms] [INFO] Powered by AMP ⚡ HTML – Version 2607210106000 https://demoqa.com/webtables @ https://cdn.ampproject.org/rtv/012607210106000/amp4ads-v0.mjs:1
